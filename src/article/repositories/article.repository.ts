@@ -38,4 +38,8 @@ export class ArticleRepository {
 
     return this.articlesQueryRepository.getArticleById(articleId);
   }
+
+  async deleteArticle(articleId: number) {
+    await this.articlesRepository.delete(articleId);
+  }
 }

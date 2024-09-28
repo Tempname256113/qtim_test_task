@@ -8,11 +8,13 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { CreateArticleUsecase } from './usecases/create-article.usecase';
 import { GetArticlesUsecase } from './usecases/get-articles.usecase';
 import { UpdateArticleUsecase } from './usecases/update-article.usecase';
+import { DeleteArticleUsecase } from './usecases/delete-article.usecase';
 
 const usecases = [
   CreateArticleUsecase,
   GetArticlesUsecase,
   UpdateArticleUsecase,
+  DeleteArticleUsecase,
 ];
 
 @Module({

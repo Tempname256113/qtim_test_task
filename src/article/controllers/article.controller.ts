@@ -1,6 +1,8 @@
 import {
+  applyDecorators,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -18,6 +20,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -32,11 +35,27 @@ import { GetArticlesSchema } from '../dtos/get-articles.schema';
 import { GetArticlesQuery } from '../usecases/get-articles.usecase';
 import { UpdateArticleDto } from '../dtos/update-article.dto';
 import {
+  cantDeleteArticleErrDesc,
   cantEditArticleErrDesc,
   notFoundArticleByIdErrDesc,
 } from '../usecases/constants';
 import { accessTokenIsNotValidErrDesc } from '../../common/constants';
 import { UpdateArticleCommand } from '../usecases/update-article.usecase';
+import { DeleteArticleCommand } from '../usecases/delete-article.usecase';
+
+const ProtectedEndpoint = (apiOperation: string, httpStatus: HttpStatus) => {
+  return applyDecorators(
+    ApiOperation({
+      summary: apiOperation,
+    }),
+    UseGuards(AccessTokenGuard),
+    ApiUnauthorizedResponse({
+      description: accessTokenIsNotValidErrDesc,
+    }),
+    ApiBearerAuth(),
+    HttpCode(httpStatus),
+  );
+};
 
 @Controller('/article')
 @ApiTags('article')
@@ -47,16 +66,10 @@ export class ArticleController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create new article' })
-  @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.CREATED)
+  @ProtectedEndpoint('Create new article', HttpStatus.CREATED)
   @ApiCreatedResponse({
     description: 'Article was successful created',
     type: ArticleSchema,
-  })
-  @ApiUnauthorizedResponse({
-    description: accessTokenIsNotValidErrDesc,
   })
   async createArticle(
     @Body() dto: CreateArticleDto,
@@ -81,16 +94,10 @@ export class ArticleController {
   }
 
   @Patch('/:articleId')
-  @ApiOperation({ summary: 'Update article' })
-  @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
+  @ProtectedEndpoint('Update article', HttpStatus.OK)
   @ApiOkResponse({
     description: 'Article was successful updated',
     type: ArticleSchema,
-  })
-  @ApiUnauthorizedResponse({
-    description: accessTokenIsNotValidErrDesc,
   })
   @ApiNotFoundResponse({
     description: notFoundArticleByIdErrDesc,
@@ -102,9 +109,25 @@ export class ArticleController {
     @Param('articleId') articleId: number,
     @Body() dto: UpdateArticleDto,
     @User() user: UserEntity,
-  ) {
+  ): Promise<ArticleSchema> {
     return this.commandBus.execute(
       new UpdateArticleCommand(articleId, user.id, dto),
     );
+  }
+
+  @Delete('/:articleId')
+  @ProtectedEndpoint('Delete article', HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: 'Article was successful deleted' })
+  @ApiNotFoundResponse({
+    description: notFoundArticleByIdErrDesc,
+  })
+  @ApiForbiddenResponse({
+    description: cantDeleteArticleErrDesc,
+  })
+  async deleteArticle(
+    @Param('articleId') articleId: number,
+    @User() user: UserEntity,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeleteArticleCommand(articleId, user.id));
   }
 }
