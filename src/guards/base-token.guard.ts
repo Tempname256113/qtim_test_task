@@ -4,9 +4,9 @@ import {
   TokensTypes,
 } from '../jwt-tokens/jwt-tokens.service';
 import { Request } from 'express';
-import { UserQueryRepository } from '../src/user/repositories/user.query-repository';
+import { UserQueryRepository } from '../user/repositories/user.query-repository';
 import { UnauthorizedException } from '@nestjs/common';
-import { UserEntity } from '../src/user/entities/user.entity';
+import { UserEntity } from '../user/entities/user.entity';
 
 export interface IRequestWithUser extends Request {
   local: { user: UserEntity };

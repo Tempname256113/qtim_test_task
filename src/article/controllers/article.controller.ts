@@ -4,17 +4,21 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { CreateArticleDto } from '../dtos/create-article.dto';
-import { AccessTokenGuard } from '../../../guards/access-token.guard';
-import { User } from '../../../decorators/user.decorator';
+import { AccessTokenGuard } from '../../guards/access-token.guard';
+import { User } from '../../decorators/user.decorator';
 import { UserEntity } from '../../user/entities/user.entity';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -26,6 +30,13 @@ import { CreateArticleCommand } from '../usecases/create-article.usecase';
 import { GetArticlesDto } from '../dtos/get-articles.dto';
 import { GetArticlesSchema } from '../dtos/get-articles.schema';
 import { GetArticlesQuery } from '../usecases/get-articles.usecase';
+import { UpdateArticleDto } from '../dtos/update-article.dto';
+import {
+  cantEditArticleErrDesc,
+  notFoundArticleByIdErrDesc,
+} from '../usecases/constants';
+import { accessTokenIsNotValidErrDesc } from '../../common/constants';
+import { UpdateArticleCommand } from '../usecases/update-article.usecase';
 
 @Controller('/article')
 @ApiTags('article')
@@ -38,15 +49,15 @@ export class ArticleController {
   @Post()
   @ApiOperation({ summary: 'Create new article' })
   @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({
     description: 'Article was successful created',
     type: ArticleSchema,
   })
   @ApiUnauthorizedResponse({
-    description: 'Access token is not valid',
+    description: accessTokenIsNotValidErrDesc,
   })
-  @ApiBearerAuth()
   async createArticle(
     @Body() dto: CreateArticleDto,
     @User() user: UserEntity,
@@ -67,5 +78,33 @@ export class ArticleController {
   })
   async getArticles(@Query() dto: GetArticlesDto): Promise<GetArticlesSchema> {
     return this.queryBus.execute(new GetArticlesQuery(dto));
+  }
+
+  @Patch('/:articleId')
+  @ApiOperation({ summary: 'Update article' })
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Article was successful updated',
+    type: ArticleSchema,
+  })
+  @ApiUnauthorizedResponse({
+    description: accessTokenIsNotValidErrDesc,
+  })
+  @ApiNotFoundResponse({
+    description: notFoundArticleByIdErrDesc,
+  })
+  @ApiForbiddenResponse({
+    description: cantEditArticleErrDesc,
+  })
+  async updateArticle(
+    @Param('articleId') articleId: number,
+    @Body() dto: UpdateArticleDto,
+    @User() user: UserEntity,
+  ) {
+    return this.commandBus.execute(
+      new UpdateArticleCommand(articleId, user.id, dto),
+    );
   }
 }

@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 import {
   ITokensPairSchema,
   JwtTokensService,
-} from '../../../jwt-tokens/jwt-tokens.service';
+} from '../../jwt-tokens/jwt-tokens.service';
 
 export const unauthorizedExceptionDesc = 'Username or password is not valid';
 

@@ -1,4 +1,4 @@
-import { NotNullableString } from '../../../decorators/not-nullable-string.decorator';
+import { NotNullableString } from '../../decorators/not-nullable-string.decorator';
 
 export class RegisterUserDto {
   @NotNullableString('tempname256113')

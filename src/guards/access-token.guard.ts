@@ -9,7 +9,7 @@ import {
   JwtTokensService,
   TokensTypes,
 } from '../jwt-tokens/jwt-tokens.service';
-import { UserQueryRepository } from '../src/user/repositories/user.query-repository';
+import { UserQueryRepository } from '../user/repositories/user.query-repository';
 
 @Injectable()
 export class AccessTokenGuard extends BaseTokenGuard implements CanActivate {

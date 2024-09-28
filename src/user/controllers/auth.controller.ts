@@ -29,10 +29,10 @@ import {
 import {
   ITokensPairSchema,
   JwtTokensService,
-} from '../../../jwt-tokens/jwt-tokens.service';
+} from '../../jwt-tokens/jwt-tokens.service';
 import { Response } from 'express';
-import { RefreshTokenGuard } from '../../../guards/refresh-token.guard';
-import { User } from '../../../decorators/user.decorator';
+import { RefreshTokenGuard } from '../../guards/refresh-token.guard';
+import { User } from '../../decorators/user.decorator';
 import { UserEntity } from '../entities/user.entity';
 
 @Controller('/auth')

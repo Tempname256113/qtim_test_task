@@ -3,7 +3,7 @@ import {
   TokensTypes,
 } from '../jwt-tokens/jwt-tokens.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { UserQueryRepository } from '../src/user/repositories/user.query-repository';
+import { UserQueryRepository } from '../user/repositories/user.query-repository';
 import { BaseTokenGuard, IRequestWithUser } from './base-token.guard';
 
 @Injectable()
