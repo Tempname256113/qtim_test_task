@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -22,7 +23,11 @@ export class ArticleEntity {
   @Column()
   publishedAt: string;
 
+  @Column()
+  authorId: number;
+
   @ManyToOne(() => UserEntity, (user) => user.articles, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'authorId' })
   author: UserEntity;
 
   @CreateDateColumn()
