@@ -12,6 +12,11 @@ export interface IJwtTokenPayload {
   exp?: number;
 }
 
+export interface ITokensPairSchema {
+  accessToken: string;
+  refreshToken: string;
+}
+
 @Injectable()
 export class JwtTokensService {
   public static readonly refreshTokenCookieTitle = 'refreshToken';
@@ -48,10 +53,17 @@ export class JwtTokensService {
 
     // для jwt токенов время нужно предоставлять в секундах, поэтому такое преобразование
     const iat: number = getUnixTime(currentDate);
-    const exp: number =
-      tokenType === 'access'
-        ? this.getAccessTokenExpireTime(currentDate)
-        : this.getRefreshTokenExpireTime(currentDate);
+
+    let exp: number;
+    let secret: string;
+
+    if (tokenType === 'access') {
+      exp = this.getAccessTokenExpireTime(currentDate);
+      secret = this.accessTokenSecret;
+    } else if (tokenType === 'refresh') {
+      exp = this.getRefreshTokenExpireTime(currentDate);
+      secret = this.refreshTokenSecret;
+    }
 
     const payload: IJwtTokenPayload = {
       userId,
@@ -61,7 +73,7 @@ export class JwtTokensService {
     };
 
     return this.jwtService.signAsync(payload, {
-      secret: this.accessTokenSecret,
+      secret,
     });
   }
 
@@ -92,7 +104,7 @@ export class JwtTokensService {
   async createTokensPair(data: {
     userId: number;
     username: string;
-  }): Promise<{ accessToken: string; refreshToken: string }> {
+  }): Promise<ITokensPairSchema> {
     const [accessToken, refreshToken] = await Promise.all([
       this.createAccessToken(data),
       this.createRefreshToken(data),

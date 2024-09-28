@@ -25,7 +25,6 @@ import appConfig from '../config/app.config';
         password: config.get('PG_CONFIG.password'),
         database: config.get('PG_CONFIG.dbName'),
         autoLoadEntities: true,
-        synchronize: true,
       }),
     }),
     RedisModule,
