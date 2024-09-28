@@ -1,10 +1,9 @@
 import {
-  IJwtTokenPayload,
   JwtTokensService,
+  TokensTypes,
 } from '../jwt-tokens/jwt-tokens.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { UserQueryRepository } from '../src/user/repositories/user.query-repository';
-import { UserEntity } from '../src/user/entities/user.entity';
 import { BaseTokenGuard, IRequestWithUser } from './base-token.guard';
 
 @Injectable()
@@ -22,14 +21,10 @@ export class RefreshTokenGuard extends BaseTokenGuard implements CanActivate {
     const refreshToken: string =
       req.cookies?.[JwtTokensService.refreshTokenCookieTitle];
 
-    const refreshTokenPayload: IJwtTokenPayload =
-      await this.verifyTokenAndGetPayload(refreshToken, 'refresh');
-
-    const foundUser: UserEntity = await this.getUserByUsername(
-      refreshTokenPayload.username,
-    );
-
-    this.addUserToRequest(req, foundUser);
+    await this.verifyTokenAndAddUserToRequest(req, {
+      token: refreshToken,
+      tokenType: TokensTypes.REFRESH_TOKEN,
+    });
 
     return true;
   }

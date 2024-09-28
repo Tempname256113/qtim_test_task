@@ -1,6 +1,7 @@
 import {
   IJwtTokenPayload,
   JwtTokensService,
+  TokensTypes,
 } from '../jwt-tokens/jwt-tokens.service';
 import { Request } from 'express';
 import { UserQueryRepository } from '../src/user/repositories/user.query-repository';
@@ -11,22 +12,27 @@ export interface IRequestWithUser extends Request {
   local: { user: UserEntity };
 }
 
+export interface ITokenData {
+  token: string;
+  tokenType: TokensTypes;
+}
+
 export class BaseTokenGuard {
   constructor(
     protected readonly tokensService: JwtTokensService,
     protected readonly userQueryRepository: UserQueryRepository,
   ) {}
 
-  async verifyTokenAndGetPayload(
-    token: string,
-    tokenType: 'access' | 'refresh',
-  ): Promise<IJwtTokenPayload> {
+  private async verifyTokenAndGetPayload({
+    token,
+    tokenType,
+  }: ITokenData): Promise<IJwtTokenPayload> {
     if (!token) {
       throw new UnauthorizedException('You need to provide token');
     }
 
     const tokenPayload: IJwtTokenPayload | null =
-      tokenType === 'access'
+      tokenType === TokensTypes.ACCESS_TOKEN
         ? await this.tokensService.verifyAccessToken(token)
         : await this.tokensService.verifyRefreshToken(token);
 
@@ -37,7 +43,7 @@ export class BaseTokenGuard {
     return tokenPayload;
   }
 
-  async getUserByUsername(username: string): Promise<UserEntity> {
+  private async getUserByUsername(username: string): Promise<UserEntity> {
     const foundUser =
       await this.userQueryRepository.getUserByUsername(username);
 
@@ -48,9 +54,19 @@ export class BaseTokenGuard {
     return foundUser;
   }
 
-  addUserToRequest(req: IRequestWithUser, user: UserEntity) {
+  async verifyTokenAndAddUserToRequest(
+    req: IRequestWithUser,
+    tokenData: ITokenData,
+  ): Promise<void> {
+    const tokenPayload: IJwtTokenPayload =
+      await this.verifyTokenAndGetPayload(tokenData);
+
+    const foundUser: UserEntity = await this.getUserByUsername(
+      tokenPayload.username,
+    );
+
     req.local = {
-      user,
+      user: foundUser,
     };
   }
 }

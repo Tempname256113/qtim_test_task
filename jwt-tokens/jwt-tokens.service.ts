@@ -5,6 +5,11 @@ import { JwtService } from '@nestjs/jwt';
 import { add, getUnixTime } from 'date-fns';
 import { Response } from 'express';
 
+export enum TokensTypes {
+  ACCESS_TOKEN = 'access',
+  REFRESH_TOKEN = 'refresh',
+}
+
 export interface IJwtTokenPayload {
   userId: number;
   username: string;
@@ -45,7 +50,7 @@ export class JwtTokensService {
 
   private async createToken(
     data: { userId: number; username: string },
-    tokenType: 'access' | 'refresh',
+    tokenType: TokensTypes,
   ) {
     const { userId, username } = data;
 
@@ -57,10 +62,10 @@ export class JwtTokensService {
     let exp: number;
     let secret: string;
 
-    if (tokenType === 'access') {
+    if (tokenType === TokensTypes.ACCESS_TOKEN) {
       exp = this.getAccessTokenExpireTime(currentDate);
       secret = this.accessTokenSecret;
-    } else if (tokenType === 'refresh') {
+    } else if (tokenType === TokensTypes.REFRESH_TOKEN) {
       exp = this.getRefreshTokenExpireTime(currentDate);
       secret = this.refreshTokenSecret;
     }
@@ -78,11 +83,11 @@ export class JwtTokensService {
   }
 
   async createAccessToken(data: { userId: number; username: string }) {
-    return this.createToken(data, 'access');
+    return this.createToken(data, TokensTypes.ACCESS_TOKEN);
   }
 
   async createRefreshToken(data: { userId: number; username: string }) {
-    return this.createToken(data, 'refresh');
+    return this.createToken(data, TokensTypes.REFRESH_TOKEN);
   }
 
   setRefreshTokenInCookie(data: { refreshToken: string; res: Response }): void {
@@ -122,10 +127,12 @@ export class JwtTokensService {
 
   private async verifyToken(
     token: string,
-    tokenType: 'access' | 'refresh',
+    tokenType: TokensTypes,
   ): Promise<IJwtTokenPayload | null> {
     const secret =
-      tokenType === 'access' ? this.accessTokenSecret : this.refreshTokenSecret;
+      tokenType === TokensTypes.ACCESS_TOKEN
+        ? this.accessTokenSecret
+        : this.refreshTokenSecret;
 
     try {
       const tokenPayload: IJwtTokenPayload = await this.jwtService.verifyAsync(
@@ -143,10 +150,10 @@ export class JwtTokensService {
   }
 
   async verifyAccessToken(token: string): Promise<IJwtTokenPayload | null> {
-    return this.verifyToken(token, 'access');
+    return this.verifyToken(token, TokensTypes.ACCESS_TOKEN);
   }
 
   async verifyRefreshToken(token: string): Promise<IJwtTokenPayload | null> {
-    return this.verifyToken(token, 'refresh');
+    return this.verifyToken(token, TokensTypes.REFRESH_TOKEN);
   }
 }
