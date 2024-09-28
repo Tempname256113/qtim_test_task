@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
-import { JwtTokensModule } from '../../jwt-tokens/jwt-tokens.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { RegisterUserUsecase } from './usecases/register-user.usecase';
 import { UserRepository } from './repositories/user.repository';
@@ -12,12 +11,9 @@ import { LoginUserUsecase } from './usecases/login-user.usecase';
 const usecases = [RegisterUserUsecase, LoginUserUsecase];
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity]),
-    CqrsModule,
-    JwtTokensModule,
-  ],
+  imports: [TypeOrmModule.forFeature([UserEntity]), CqrsModule],
   controllers: [AuthController],
   providers: [UserRepository, UserQueryRepository, ...usecases],
+  exports: [UserQueryRepository],
 })
 export class UserModule {}
