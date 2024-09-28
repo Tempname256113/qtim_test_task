@@ -17,7 +17,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migration:generate":  "ts-node ./node_modules/typeorm/cli.js migration:generate -d ./ormconfig.ts",
+    "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run -d ./ormconfig.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -33,6 +35,7 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.4.5",
     "ioredis": "^5.4.1",
     "pg": "^8.13.0",
     "reflect-metadata": "^0.2.0",
