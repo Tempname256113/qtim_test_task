@@ -36,7 +36,7 @@ export class BaseTokenGuard {
         ? await this.tokensService.verifyAccessToken(token)
         : await this.tokensService.verifyRefreshToken(token);
 
-    if (!token) {
+    if (!tokenPayload) {
       throw new UnauthorizedException('Invalid token or expired');
     }
 
