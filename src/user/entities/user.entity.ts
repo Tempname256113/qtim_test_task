@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ArticleEntity } from '../../article/entities/article.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -16,6 +18,9 @@ export class UserEntity {
 
   @Column({ unique: true })
   username: string;
+
+  @OneToMany(() => ArticleEntity, (article) => article.author)
+  articles: ArticleEntity[];
 
   @CreateDateColumn()
   createdAt: string;
