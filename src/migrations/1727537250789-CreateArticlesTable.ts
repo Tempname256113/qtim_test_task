@@ -5,7 +5,7 @@ export class CreateArticlesTable1727537250789 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-        CREATE TABLE "articles" (
+        CREATE TABLE IF NOT EXISTS "articles" (
             "id" SERIAL NOT NULL,
             "title" character varying NOT NULL,
             "description" character varying NOT NULL,
