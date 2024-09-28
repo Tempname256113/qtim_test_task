@@ -92,7 +92,9 @@ export class AuthController {
     description: 'The tokens pair successfully updated',
     type: LoginUserSchema,
   })
-  @ApiUnauthorizedResponse()
+  @ApiUnauthorizedResponse({
+    description: 'Refresh token is not valid',
+  })
   @ApiCookieAuth()
   async updateTokensPair(
     @User() user: UserEntity,
