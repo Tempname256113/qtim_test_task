@@ -27,8 +27,11 @@ export class RegisterUserUsecase
       throw new ConflictException('Username already taken');
     }
 
-    command.password = await bcrypt.hash(command.password, 10);
+    const encryptedPassword = await bcrypt.hash(command.password, 10);
 
-    await this.userRepository.createUser(command);
+    await this.userRepository.createUser({
+      ...command,
+      password: encryptedPassword,
+    });
   }
 }
