@@ -8,6 +8,7 @@ import {
   cantEditArticleErrDesc,
   notFoundArticleByIdErrDesc,
 } from './constants';
+import { ArticleCacheRepository } from '../repositories/article.cache-repository';
 
 export class UpdateArticleCommand {
   constructor(
@@ -24,6 +25,7 @@ export class UpdateArticleUsecase
   constructor(
     private readonly articleRepository: ArticleRepository,
     private readonly articleQueryRepository: ArticleQueryRepository,
+    private readonly articleCacheRepository: ArticleCacheRepository,
   ) {}
 
   async execute({
@@ -42,6 +44,10 @@ export class UpdateArticleUsecase
       throw new ForbiddenException(cantEditArticleErrDesc);
     }
 
-    return this.articleRepository.updateArticle(articleId, command);
+    const updatedArticle: ArticleSchema =
+      await this.articleRepository.updateArticle(articleId, command);
+    await this.articleCacheRepository.deleteAllArticles();
+
+    return updatedArticle;
   }
 }

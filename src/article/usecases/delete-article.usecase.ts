@@ -6,6 +6,7 @@ import {
   cantDeleteArticleErrDesc,
   notFoundArticleByIdErrDesc,
 } from './constants';
+import { ArticleCacheRepository } from '../repositories/article.cache-repository';
 
 export class DeleteArticleCommand {
   constructor(
@@ -21,6 +22,7 @@ export class DeleteArticleUsecase
   constructor(
     private readonly articleRepository: ArticleRepository,
     private readonly articleQueryRepository: ArticleQueryRepository,
+    private readonly articleCacheRepository: ArticleCacheRepository,
   ) {}
 
   async execute({ articleId, userId }: DeleteArticleCommand): Promise<void> {
@@ -36,5 +38,6 @@ export class DeleteArticleUsecase
     }
 
     await this.articleRepository.deleteArticle(articleId);
+    await this.articleCacheRepository.deleteAllArticles();
   }
 }
