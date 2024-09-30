@@ -13,12 +13,12 @@ export class ArticleCacheRepository {
     this.prefix = 'articles';
   }
 
-  private getCacheKey(filters: GetArticlesDto) {
+  private getCacheKey(filters: Partial<GetArticlesDto>) {
     return `${this.prefix}:${JSON.stringify(filters)}`;
   }
 
   async cacheArticles(
-    filters: GetArticlesDto,
+    filters: Partial<GetArticlesDto>,
     dto: GetArticlesSchema,
   ): Promise<void> {
     const cacheKey = this.getCacheKey(filters);
@@ -31,7 +31,9 @@ export class ArticleCacheRepository {
     );
   }
 
-  async getCachedArticles(filters: GetArticlesDto): Promise<GetArticlesSchema> {
+  async getCachedArticles(
+    filters: Partial<GetArticlesDto>,
+  ): Promise<GetArticlesSchema> {
     const cacheKey = this.getCacheKey(filters);
 
     return this.redisClient.get(cacheKey).then((jsonString) => {

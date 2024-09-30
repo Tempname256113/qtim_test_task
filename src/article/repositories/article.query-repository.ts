@@ -41,7 +41,7 @@ export class ArticleQueryRepository {
     return this.mapArticleToSchema(foundArticle);
   }
 
-  async getArticles(dto: GetArticlesDto): Promise<GetArticlesSchema> {
+  async getArticles(dto: Partial<GetArticlesDto>): Promise<GetArticlesSchema> {
     const queryBuilder = this.articlesRepository
       .createQueryBuilder('article')
       .innerJoinAndSelect('article.author', 'user');

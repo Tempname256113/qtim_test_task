@@ -5,7 +5,7 @@ import { GetArticlesSchema } from '../dtos/get-articles.schema';
 import { ArticleCacheRepository } from '../repositories/article.cache-repository';
 
 export class GetArticlesQuery {
-  constructor(public data: GetArticlesDto) {}
+  constructor(public data: Partial<GetArticlesDto> = {}) {}
 }
 
 @QueryHandler(GetArticlesQuery)
@@ -18,8 +18,8 @@ export class GetArticlesUsecase
   ) {}
 
   async execute({ data: query }: GetArticlesQuery): Promise<GetArticlesSchema> {
-    query.page = Number(query.page) ?? 1;
-    query.pageSize = Number(query.pageSize) ?? 10;
+    query.page = query.page ? Number(query.page) : 1;
+    query.pageSize = query.pageSize ? Number(query.pageSize) : 10;
 
     const cachedArticles: GetArticlesSchema =
       await this.articleCacheRepository.getCachedArticles(query);
